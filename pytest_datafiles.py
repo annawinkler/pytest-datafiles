@@ -2,6 +2,7 @@
 Module containing a 'datafiles' fixture for pytest Tests.
 """
 
+import os
 from py import path  # pylint: disable=E0611
 import pytest
 
@@ -9,8 +10,12 @@ import pytest
 def _copy(src, target):
     if not src.exists():
         raise ValueError("'%s' does not exist!" % src)
+
     if src.isdir():
         src.copy(target / src.basename)
+    elif src.islink():
+        linkto = os.readlink(str(src))
+        os.symlink(linkto, str(target / src.basename))
     else:  # file
         src.copy(target)
 
